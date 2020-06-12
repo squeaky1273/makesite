@@ -1,16 +1,29 @@
 package main
 
-<<<<<<< HEAD
 import (
+	// "fmt"
+	"flag"
 	"io/ioutil"
+	"html/template"
+	"os"
+	"strings"
 )
 
-func main() {
-
+type content struct {
+	Content string
 }
 
-func readFile() string {
-	fileContents, err := ioutil.ReadFile("first-post.txt")
+func main() {
+	filePtr := flag.String("file", "", "filename")
+	flag.Parse()
+	content := readFile(*filePtr)
+
+	renderTemplate("template.tmpl", content)
+	writeTemplateToFile("template.tmpl", *filePtr)
+}
+
+func readFile(name string) string {
+	fileContents, err := ioutil.ReadFile(name)
 	if err != nil {
 		panic(err)
 	}
@@ -18,11 +31,30 @@ func readFile() string {
 	return string(fileContents)
 }
 
-func renderTemplate()
-=======
-import "fmt"
+func renderTemplate(filename string, data string) {
+	c := content{Content: data}
+	t := template.Must(template.New("template.tmpl").ParseFiles(filename))
 
-func main() {
-	fmt.Println("Hello, world!")
+	var err error
+	err = t.Execute(os.Stdout , c)
+	if err != nil {
+		panic(err)
+	}
 }
->>>>>>> 9514ac8a2c135a448a2b15a4b246dcd5d59ee7bf
+
+func writeTemplateToFile(filename string, data string) {
+	c := content{Content: data}
+	t := template.Must(template.New("template.tmpl").ParseFiles(filename))
+	
+	fileName := strings.Split(filename, ".")[0] + ".html"
+	f, err := os.Create(fileName)
+	if err != nil {
+		panic(err)
+	}
+
+	err = t.Execute(f, c)
+	if err != nil {
+		panic(err)
+	}
+
+}
