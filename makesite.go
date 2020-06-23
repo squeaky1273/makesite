@@ -15,11 +15,26 @@ type content struct {
 
 func main() {
 	filePtr := flag.String("file", "", "filename")
+	dirPtr := flag.String("dir", "", "directory")
 	flag.Parse()
-	content := readFile(*filePtr)
+	if *dirPtr != "" {
+		files, err := ioutil.ReadDir(*dirPtr)
+		if err != nil {
+			panic(err)
+		}
+		for _, f := range files {
+			name := f.Name()
+			if isTxtFile(name) == true {
+				renderTemplate("template.tmpl", readFile(name))
+				writeTemplateToFile("template.tmpl", name)
+			}		
+		}
+	}
 
-	renderTemplate("template.tmpl", content)
-	writeTemplateToFile("template.tmpl", *filePtr)
+	if *filePtr != "" {
+		renderTemplate("template.tmpl", readFile(*filePtr))
+		writeTemplateToFile("template.tmpl", *filePtr)
+	}
 }
 
 func readFile(name string) string {
@@ -57,4 +72,12 @@ func writeTemplateToFile(filename string, data string) {
 		panic(err)
 	}
 
+}
+
+func isTxtFile(filename string) bool {
+	if strings.Contains(filename, ".") {
+		return strings.Split(filename, ".")[1] == "txt"
+	} else {
+		return false
+	}
 }
