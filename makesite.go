@@ -1,12 +1,13 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 	"flag"
 	"io/ioutil"
 	"html/template"
 	"os"
 	"strings"
+	"github.com/bregydoc/gtranslate"
 )
 
 type content struct {
@@ -35,6 +36,21 @@ func main() {
 		renderTemplate("template.tmpl", readFile(*filePtr))
 		writeTemplateToFile("template.tmpl", *filePtr)
 	}
+
+	text := "This is a go mod test."
+	translated, err := gtranslate.TranslateWithParams(
+		text,
+		gtranslate.TranslationParams{
+			From: "en",
+			To:   "ja",
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("en: %s | ja: %s \n", text, translated)
+
 }
 
 func readFile(name string) string {
